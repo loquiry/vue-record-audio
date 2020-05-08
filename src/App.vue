@@ -14,9 +14,7 @@ export default {
     return {
       isRecording: false,
       startedRecording: null,
-      endedRecording: null,
       mediaRecorder: null,
-      hasPermission: false,
     };
   },
   mounted() {
@@ -27,9 +25,7 @@ export default {
       let t = this;
       navigator.mediaDevices
         .getUserMedia({ audio: true })
-        .then(function(stream) {
-          this.hasPermissions = true;
-        })
+        .then(function(stream) {})
         .catch(function(err) {});
     },
     record() {
