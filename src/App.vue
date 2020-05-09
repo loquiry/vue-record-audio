@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import RecordRTC from "recordrtc";
 export default {
   data() {
     return {
@@ -16,7 +17,16 @@ export default {
       hasMediaDeviceCaps: false,
       startedRecording: null,
       mediaRecorder: null,
-      isIosDevice: !!navigator.userAgent.match(/iPhone|iPad|iPod/i) || false
+      isEdge:
+        navigator.userAgent.match(/Edge/) !== -1 &&
+        (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob),
+      isSafari: !!navigator.userAgent.match(/^((?!chrome|android).)*safari/i),
+      isWin:
+        navigator.platform &&
+        navigator.platform
+          .toString()
+          .toLowerCase()
+          .indexOf("win") === -1
     };
   },
   mounted() {
@@ -26,38 +36,58 @@ export default {
     async grantPermissions() {
       let t = this;
       try {
-        navigator.mediaDevices
-          .getUserMedia({ audio: true })
-          .then(() => (this.hasMediaDeviceCaps = true))
-          .catch(() => (this.hasMediaDeviceCaps = false));
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        this.hasMediaDeviceCaps = true;
       } catch (err) {
+        // could be used to show a hint that the device/browser does not support WebRTC.
+        // should potentially never be the case but better be safe
         this.hasMediaDeviceCaps = false;
       }
     },
-    record() {
+    async record() {
       if (!this.isRecording) {
         this.isRecording = true;
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-          var options = {
-            audioBitsPerSecond: 128000,
-            mimeType: "audio/webm;codecs=opus"
-          };
-          this.mediaRecorder = new MediaRecorder(stream, options);
-          this.mediaRecorder.ondataavailable = this.handleDataAvailable;
-          this.mediaRecorder.start();
-          this.startedRecording = performance.now();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: this.isEdge
+            ? true
+            : {
+                echoCancellation: false
+              }
         });
+
+        var options = {
+          type: "audio",
+          numberOfAudioChannels: this.isEdge ? 1 : 2,
+          checkForInactiveTracks: true,
+          bufferSize: 16384,
+          // disble webRTC logs
+          disableLogs: true
+        };
+
+        if (this.isSafari || this.isEdge) {
+          options.recorderType = RecordRTC.StereoAudioRecorder;
+        }
+
+        if (this.isSafari) {
+          options.sampleRate = 44100;
+          options.bufferSize = 4096;
+        }
+
+        this.mediaRecorder = new RecordRTC(stream.clone(), options);
+        this.mediaRecorder.startRecording();
+        this.startedRecording = performance.now();
       } else {
         this.isRecording = false;
         if (this.mediaRecorder) {
-          this.mediaRecorder.stop();
-          if (this.mediaRecorder.stream)
-            this.mediaRecorder.stream.getTracks().forEach(i => i.stop());
+          this.mediaRecorder.stopRecording(this.handleDataAvailable);
         }
       }
     },
     handleDataAvailable(e) {
-      this.$refs.audio.src = URL.createObjectURL(e.data);
+      if (this.mediaRecorder) {
+        const blob = this.mediaRecorder.getBlob();
+        this.$refs.audio.src = URL.createObjectURL(blob);
+      }
     }
   }
 };
