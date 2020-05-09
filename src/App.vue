@@ -13,28 +13,34 @@ export default {
   data() {
     return {
       isRecording: false,
+      hasMediaDeviceCaps: false,
       startedRecording: null,
       mediaRecorder: null,
+      isIosDevice: !!navigator.userAgent.match(/iPhone|iPad|iPod/i) || false
     };
   },
   mounted() {
     this.grantPermissions();
   },
   methods: {
-    grantPermissions() {
+    async grantPermissions() {
       let t = this;
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then(function(stream) {})
-        .catch(function(err) {});
+      try {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then(() => (this.hasMediaDeviceCaps = true))
+          .catch(() => (this.hasMediaDeviceCaps = false));
+      } catch (err) {
+        this.hasMediaDeviceCaps = false;
+      }
     },
     record() {
       if (!this.isRecording) {
         this.isRecording = true;
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
           var options = {
             audioBitsPerSecond: 128000,
-            mimeType: "audio/webm;codecs=opus",
+            mimeType: "audio/webm;codecs=opus"
           };
           this.mediaRecorder = new MediaRecorder(stream, options);
           this.mediaRecorder.ondataavailable = this.handleDataAvailable;
@@ -43,14 +49,17 @@ export default {
         });
       } else {
         this.isRecording = false;
-        this.mediaRecorder.stop();
-        this.mediaRecorder.stream.getTracks().forEach((i) => i.stop());
+        if (this.mediaRecorder) {
+          this.mediaRecorder.stop();
+          if (this.mediaRecorder.stream)
+            this.mediaRecorder.stream.getTracks().forEach(i => i.stop());
+        }
       }
     },
     handleDataAvailable(e) {
       this.$refs.audio.src = URL.createObjectURL(e.data);
-    },
-  },
+    }
+  }
 };
 </script>
 
