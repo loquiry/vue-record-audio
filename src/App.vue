@@ -1,15 +1,13 @@
 <template>
-  <div>
-    <button @click="record" :class="['record', isRecording && 'active']">
-      <span v-if="!isRecording" class="icon">Record</span>
-      <span v-if="isRecording" class="icon">Stop</span>
-    </button>
-    <audio ref="audio" controls></audio>
-  </div>
+  <button @click="record" :class="['record', isRecording && 'active']">
+    <slot v-if="!isRecording" />
+    <slot v-if="isRecording" name="isRecording"></slot>
+  </button>
 </template>
 
 <script>
 import RecordRTC from "recordrtc";
+
 export default {
   data() {
     return {
@@ -78,50 +76,21 @@ export default {
         this.startedRecording = performance.now();
       } else {
         this.isRecording = false;
+
         if (this.mediaRecorder) {
           this.mediaRecorder.stopRecording(this.handleDataAvailable);
         }
       }
     },
-    handleDataAvailable(e) {
+    handleDataAvailable() {
       if (this.mediaRecorder) {
         const blob = this.mediaRecorder.getBlob();
-        this.$refs.audio.src = URL.createObjectURL(blob);
+        this.$emit("result", {
+          blob: blob,
+          duration: performance.now() - this.startedRecording
+        });
       }
     }
   }
 };
 </script>
-
-<style lang="postcss">
-:root {
-  --red: #df1032;
-  --blue: #256cff;
-  --teal: #22e5a0;
-  --grey: #161618;
-  --border-radius: 0.5em;
-}
-.record {
-  width: 90px;
-  height: 90px;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 90px;
-  border: 2px solid var(--blue);
-  transition: background 120ms ease-in-out, transform 120ms ease-in-out;
-
-  &:hover {
-    background: var(--blue);
-  }
-  &:focus {
-    outline: none;
-  }
-  &.active {
-    background: var(--red);
-    transform: scale(1.05);
-    animation: none;
-  }
-}
-</style>
