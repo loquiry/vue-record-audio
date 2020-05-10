@@ -59,7 +59,7 @@ result = {
 
 ### Content
 
-As stated in [Usage](#Usage) The component has two slots that will be switched if the button is recording
+As stated in [Usage](#usage) The component has two slots that will be switched if the button is recording
 
 ### Classes
 
