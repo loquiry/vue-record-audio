@@ -1,11 +1,13 @@
 {
-  "name": "vue-record",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@loquiry/vue-record-audio",
+  "version": "0.2.0-alpha",
+  "main": "dist/vue-record-audio.umd.js",
+  "unpkg": "dist/vue-record-audio.common.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build --target lib --name vue-record-audio"
   },
+  "license": "MIT",
   "dependencies": {
     "recordrtc": "^5.5.9",
     "vue": "^2.6.11"
