@@ -65,7 +65,7 @@ As stated in [Usage](#usage) The component has two slots that will be switched i
 
 - `.active` when the button is recording ## Development
 
-### Develpment
+### Development
 
 ```
 yarn install
