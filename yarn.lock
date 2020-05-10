@@ -5013,6 +5013,11 @@ readdirp@^2.2.1:
     micromatch "^3.1.10"
     readable-stream "^2.0.2"
 
+recordrtc@^5.5.9:
+  version "5.5.9"
+  resolved "https://registry.yarnpkg.com/recordrtc/-/recordrtc-5.5.9.tgz#cda4b4c965a499cfa9d5b23e27f2043fb3d28399"
+  integrity sha512-6T1tn80nRfsXrAoYWINwz+hBKk+pB5Im4I0BS52Og1ruQvrEdV3IUcm+AKwLMHNyBAhJ2DaVa+9pukTRxMF/uA==
+
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/regex-not/-/regex-not-1.0.2.tgz#1f4ece27e00b0b65e0247a6810e6a85d83a5752c"
