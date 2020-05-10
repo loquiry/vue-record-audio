@@ -63,7 +63,7 @@ As stated in [Usage](#usage) The component has two slots that will be switched i
 
 ### Classes
 
-- `.active` when the button is recording ## Development
+- `.active` when the button is recording
 
 ### Development
 
