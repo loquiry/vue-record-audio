@@ -1,6 +1,5 @@
 <template>
   <button @click="record" :class="['record', isRecording && 'active']">
-    FROM THE DEV
     <slot v-if="!isRecording" />
     <slot v-if="isRecording" name="isRecording"></slot>
   </button>
