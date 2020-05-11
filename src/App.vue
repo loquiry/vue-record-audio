@@ -1,5 +1,6 @@
 <template>
   <button @click="record" :class="['record', isRecording && 'active']">
+    FROM THE DEV
     <slot v-if="!isRecording" />
     <slot v-if="isRecording" name="isRecording"></slot>
   </button>
@@ -14,6 +15,7 @@ export default {
       isRecording: false,
       hasMediaDeviceCaps: false,
       startedRecording: null,
+      stoppedRecording: null,
       mediaRecorder: null,
       isEdge:
         navigator.userAgent.match(/Edge/) !== -1 &&
@@ -59,12 +61,9 @@ export default {
           checkForInactiveTracks: true,
           bufferSize: 16384,
           // disble webRTC logs
-          disableLogs: true
+          disableLogs: true,
+          recorderType: RecordRTC.StereoAudioRecorder
         };
-
-        if (this.isSafari || this.isEdge) {
-          options.recorderType = RecordRTC.StereoAudioRecorder;
-        }
 
         if (this.isSafari) {
           options.sampleRate = 44100;
@@ -76,7 +75,7 @@ export default {
         this.startedRecording = performance.now();
       } else {
         this.isRecording = false;
-
+        this.stoppedRecording = performance.now();
         if (this.mediaRecorder) {
           this.mediaRecorder.stopRecording(this.handleDataAvailable);
         }
@@ -84,10 +83,9 @@ export default {
     },
     handleDataAvailable() {
       if (this.mediaRecorder) {
-        const blob = this.mediaRecorder.getBlob();
         this.$emit("result", {
-          blob: blob,
-          duration: performance.now() - this.startedRecording
+          blob: this.mediaRecorder.getBlob(),
+          duration: this.stoppedRecording - this.startedRecording
         });
       }
     }
