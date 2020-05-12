@@ -16,7 +16,6 @@ export default {
       startedRecording: null,
       stoppedRecording: null,
       mediaRecorder: null,
-      isFirefox: navigator.userAgent.match(/Firefox/),
       isAndroid: navigator.userAgent.match(/Android/),
       isEdge:
         navigator.userAgent.match(/Edge/) !== -1 &&
@@ -62,13 +61,13 @@ export default {
           checkForInactiveTracks: true,
           bufferSize: 16384,
           // disble webRTC logs
-          disableLogs: true
+          disableLogs: true,
+          recorderType: RecordRTC.StereoAudioRecorder
         };
 
-        if (this.isSafari || this.isEdge || this.isFirefox) {
-          options.recorderType = RecordRTC.StereoAudioRecorder;
+        if (this.isAndroid) {
+          options.recorderType = RecordRTC.MediaStreamRecorder;
         }
-
         if (this.isSafari) {
           options.sampleRate = 44100;
           options.bufferSize = 4096;
