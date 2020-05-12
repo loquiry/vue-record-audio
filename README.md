@@ -65,7 +65,17 @@ As stated in [Usage](#usage) The component has two slots that will be switched i
 
 - `.active` when the button is recording
 
-### Development
+### Options
+
+pass an options object as prop `options`
+
+default:
+
+```
+{ sampleRate: 44100, bufferSize: 16384 }
+```
+
+## Development
 
 ```
 yarn install
@@ -76,3 +86,9 @@ yarn install
 ```
 yarn run serve
 ```
+
+## Dependencies
+
+This is only working thanks to
+
+- recorder-js https://www.npmjs.com/package/recorder-js

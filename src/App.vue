@@ -11,7 +11,7 @@
 <script>
 import Recorder from "recorder-js";
 
-const DEFAULT_OPTIONS = { mimeType: "video/webm; codecs=vp9" };
+const DEFAULT_OPTIONS = { sampleRate: 44100, bufferSize: 16384 };
 
 export default {
   props: {
@@ -40,7 +40,7 @@ export default {
         await navigator.mediaDevices
           .getUserMedia({ audio: true })
           .then((stream) => {
-            t.recorder = new Recorder(audioContext, {});
+            t.recorder = new Recorder(audioContext, t.recorderOptions);
             t.recorder.init(stream);
           })
           .then(() => (t.isInitiated = true))
