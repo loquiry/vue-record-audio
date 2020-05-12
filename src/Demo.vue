@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="error" v-if="error">{{ error }}</div>
     <VueRecord
       class="record"
       @result="applyAudio"
@@ -23,12 +24,16 @@ export default {
   components: { VueRecord },
   data() {
     return {
-      duration: null
+      duration: null,
+      error: null
     };
   },
   methods: {
-    applyAudio(data) {
-      this.$refs.audio.src = URL.createObjectURL(data.blob);
+    async applyAudio(data) {
+      let t = this;
+      this.$refs.audio.src = await URL.createObjectURL(data.blob).catch(
+        (err) => (t.error = err)
+      );
       this.duration = data.duration;
     },
     cLog(content) {
@@ -59,5 +64,9 @@ export default {
   background: var(--red);
   transform: scale(1.05);
   animation: none;
+}
+.error {
+  padding: 1em;
+  border-bottom: 2px solid red;
 }
 </style>
