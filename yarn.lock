@@ -2997,6 +2997,11 @@ inherits@2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
+inline-worker@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/inline-worker/-/inline-worker-1.1.0.tgz#55e96f54915a642b00872a2daa6fe832b424c98d"
+  integrity sha1-VelvVJFaZCsAhyotqm/oMrQkyY0=
+
 internal-ip@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/internal-ip/-/internal-ip-4.3.0.tgz#845452baad9d2ca3b69c635a137acb9a0dad0907"
@@ -5012,6 +5017,13 @@ readdirp@^2.2.1:
     graceful-fs "^4.1.11"
     micromatch "^3.1.10"
     readable-stream "^2.0.2"
+
+recorder-js@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/recorder-js/-/recorder-js-1.0.7.tgz#5416f05c863d95c4b6eb4b2658ad6c1baf9f5677"
+  integrity sha1-VBbwXIY9lcS260smWK1sG6+fVnc=
+  dependencies:
+    inline-worker "^1.1.0"
 
 recordrtc@^5.5.9:
   version "5.5.9"

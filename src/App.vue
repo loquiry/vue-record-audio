@@ -1,96 +1,69 @@
 <template>
-  <button @click="record" :class="['record', isRecording && 'active']">
+  <button
+    @click="recorderClick"
+    :class="[isRecording && 'active', !isInitiated && 'needsInitiation']"
+  >
     <slot v-if="!isRecording" />
     <slot v-if="isRecording" name="isRecording"></slot>
   </button>
 </template>
 
 <script>
-import RecordRTC from "recordrtc";
+import Recorder from "recorder-js";
+
+const DEFAULT_OPTIONS = { mimeType: "video/webm; codecs=vp9" };
 
 export default {
+  props: {
+    options: {
+      type: Object,
+      required: false
+    }
+  },
   data() {
     return {
+      isInitiated: false,
       isRecording: false,
-      hasMediaDeviceCaps: false,
-      startedRecording: null,
-      stoppedRecording: null,
-      mediaRecorder: null,
-      isFirefox: navigator.userAgent.match(/Firefox/),
-      isAndroid: navigator.userAgent.match(/Android/),
-      isEdge:
-        navigator.userAgent.match(/Edge/) !== -1 &&
-        (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob),
-      isSafari: !!navigator.userAgent.match(/^((?!chrome|android).)*safari/i),
-      isWin:
-        navigator.platform &&
-        navigator.platform
-          .toString()
-          .toLowerCase()
-          .indexOf("win") === -1
+      recordingStartedAt: null,
+      recordingEndedAt: null,
+      recorder: null,
+      recorderOptions: this.options || DEFAULT_OPTIONS
     };
   },
-  mounted() {
-    this.grantPermissions();
-  },
   methods: {
-    async grantPermissions() {
+    async recorderClick() {
       let t = this;
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        this.hasMediaDeviceCaps = true;
-      } catch (err) {
-        // could be used to show a hint that the device/browser does not support WebRTC.
-        // should potentially never be the case but better be safe
-        this.hasMediaDeviceCaps = false;
-      }
-    },
-    async record() {
-      if (!this.isRecording) {
-        this.isRecording = true;
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: this.isEdge
-            ? true
-            : {
-                echoCancellation: false
-              }
-        });
+      if (!t.isInitiated) {
+        const audioContext = new (window.AudioContext ||
+          window.webkitAudioContext)();
 
-        var options = {
-          type: "audio",
-          numberOfAudioChannels: this.isEdge ? 1 : 2,
-          checkForInactiveTracks: true,
-          bufferSize: 16384,
-          // disble webRTC logs
-          disableLogs: true
-        };
-
-        if (this.isSafari || this.isEdge || this.isFirefox) {
-          options.recorderType = RecordRTC.StereoAudioRecorder;
-        }
-
-        if (this.isSafari) {
-          options.sampleRate = 44100;
-          options.bufferSize = 4096;
-        }
-
-        this.mediaRecorder = new RecordRTC(stream.clone(), options);
-        this.mediaRecorder.startRecording();
-        this.startedRecording = performance.now();
+        await navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            t.recorder = new Recorder(audioContext, {});
+            t.recorder.init(stream);
+          })
+          .then(() => (t.isInitiated = true))
+          .catch((err) => {
+            throw err;
+          });
       } else {
-        this.isRecording = false;
-        this.stoppedRecording = performance.now();
-        if (this.mediaRecorder) {
-          await this.mediaRecorder.stopRecording(this.handleDataAvailable);
+        if (!t.isRecording) {
+          t.recorder.start().then(() => {
+            t.isRecording = true;
+            t.recordingStartedAt = performance.now();
+          });
+        } else {
+          t.recorder.stop().then(({ blob, buffer }) => {
+            t.recordingEndedAt = performance.now();
+            t.$emit("result", {
+              blob: blob,
+              duration: t.recordingEndedAt - t.recordingStartedAt,
+              type: blob.type
+            });
+            t.isRecording = false;
+          });
         }
-      }
-    },
-    handleDataAvailable() {
-      if (this.mediaRecorder) {
-        this.$emit("result", {
-          blob: this.mediaRecorder.getBlob(),
-          duration: this.stoppedRecording - this.startedRecording
-        });
       }
     }
   }

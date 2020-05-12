@@ -11,8 +11,11 @@
         Stop
       </span>
     </VueRecord>
+
     <audio ref="audio" controls></audio>
-    <div v-if="duration">{{ duration }}ms</div>
+    <h2>result:</h2>
+    <div v-if="duration">duration: {{ duration }}ms</div>
+    <div v-if="type">type: {{ type }}</div>
   </div>
 </template>
 
@@ -23,13 +26,16 @@ export default {
   components: { VueRecord },
   data() {
     return {
-      duration: null
+      duration: null,
+      type: null
     };
   },
   methods: {
     applyAudio(data) {
+      console.log(data);
       this.$refs.audio.src = URL.createObjectURL(data.blob);
       this.duration = data.duration;
+      this.type = data.type;
     },
     cLog(content) {
       console.log(content);
@@ -59,5 +65,8 @@ export default {
   background: var(--red);
   transform: scale(1.05);
   animation: none;
+}
+.record.needsInitiation {
+  background: black;
 }
 </style>
