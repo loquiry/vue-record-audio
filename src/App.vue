@@ -16,7 +16,6 @@ export default {
       startedRecording: null,
       stoppedRecording: null,
       mediaRecorder: null,
-      isAndroid: navigator.userAgent.match(/Android/),
       isEdge:
         navigator.userAgent.match(/Edge/) !== -1 &&
         (!!navigator.msSaveOrOpenBlob || !!navigator.msSaveBlob),
@@ -65,9 +64,6 @@ export default {
           recorderType: RecordRTC.StereoAudioRecorder
         };
 
-        if (this.isAndroid) {
-          options.recorderType = RecordRTC.MediaStreamRecorder;
-        }
         if (this.isSafari) {
           options.sampleRate = 44100;
           options.bufferSize = 4096;
@@ -80,7 +76,7 @@ export default {
         this.isRecording = false;
         this.stoppedRecording = performance.now();
         if (this.mediaRecorder) {
-          await this.mediaRecorder.stopRecording(this.handleDataAvailable);
+          this.mediaRecorder.stopRecording(this.handleDataAvailable);
         }
       }
     },
