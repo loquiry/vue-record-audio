@@ -2,16 +2,21 @@
   <div>
     <VueRecord
       class="record"
+      @error="error = $event"
       @result="applyAudio"
       @start="cLog('started')"
       @stop="cLog('stopped')"
     >
+      <span slot="isInitiating">
+        Grant microphone permissions
+      </span>
       Record
       <span slot="isRecording">
         Stop
       </span>
     </VueRecord>
 
+    <div class="error" v-if="error">{{ error }}</div>
     <audio ref="audio" controls></audio>
     <h2>result:</h2>
     <div v-if="duration">duration: {{ duration }}ms</div>
@@ -27,7 +32,8 @@ export default {
   data() {
     return {
       duration: null,
-      type: null
+      type: null,
+      error: null
     };
   },
   methods: {
@@ -60,6 +66,7 @@ export default {
 
 .record:focus {
   outline: none;
+  border: 3px solid black;
 }
 .record.active {
   background: var(--red);
@@ -68,5 +75,9 @@ export default {
 }
 .record.needsInitiation {
   background: black;
+}
+
+.error {
+  border-bottom: 2px solid red;
 }
 </style>

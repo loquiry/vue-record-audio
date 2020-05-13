@@ -13,6 +13,9 @@ A styleless audio recorder button as a vue component
 <template>
   <VueRecord class="record" @result="onResult">
     Record
+    <template slot="isInitiating">
+      Grant microphone permissions
+    </template>
     <template slot="isRecording">
       Stop
     </template>
@@ -42,38 +45,46 @@ export default {
 
 ## Api
 
-### Result
+### Result Object
 
 The result is an object containing the blob and the duration of the recording in ms
 
 ```js
 result = {
   blob: blob,
-  duration: 1515.9850000000006
+  duration: 1515.9850000000006,
+  type: "audio/wav"
 };
 ```
 
 ### Events
 
-- result: fired after recording, returns a blob
+- result: fired after recording | returns the [Result Object](#result-object)
+- initiated: fired when permissions are successfully granted | returns nothing
+- error: fired when an error happens and | returns the error message
 
 ### Content
 
-As stated in [Usage](#usage) The component has two slots that will be switched if the button is recording
+As stated in [Usage](#usage) The component has three slots that will be switched if the button is initiated/recording
 
-### Classes
+### Css Classes
 
 - `.active` when the button is recording
+- `.needsInitiation` when the button has never been pressed
 
-### Options
+### Props
 
-pass an options object as prop `options`
+- `options`: pass an options object as prop `options`
 
-default:
+  default:
 
-```
-{ sampleRate: 44100, bufferSize: 16384 }
-```
+  ```
+  { sampleRate: 44100, bufferSize: 16384 }
+  ```
+
+- `isAlreadyInitiated`: immediatly initiation the recorder (helpful when you know a user has already given permissions to use the microphone)
+
+  default: `false`
 
 ## Development
 
@@ -91,4 +102,4 @@ yarn run serve
 
 This is only working thanks to
 
-- recorder-js https://www.npmjs.com/package/recorder-js
+- [recorder-js](https://www.npmjs.com/package/recorder-js)
