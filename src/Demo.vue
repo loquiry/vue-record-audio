@@ -14,6 +14,9 @@
       <span slot="isRecording">
         Stop
       </span>
+      <span slot="isCreating">
+        Creating Audio
+      </span>
     </VueRecord>
 
     <div class="error" v-if="error">{{ error }}</div>
@@ -76,7 +79,10 @@ export default {
 .record.needsInitiation {
   background: black;
 }
-
+.record.creating {
+  background: black;
+  opacity: 0.5;
+}
 .error {
   border-bottom: 2px solid red;
 }

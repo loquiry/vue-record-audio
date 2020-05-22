@@ -19,6 +19,9 @@ A styleless audio recorder button as a vue component
     <template slot="isRecording">
       Stop
     </template>
+    <template slot="isCreating">
+      Creating Sound...
+    </template>
   </VueRecord>
 </template>
 
@@ -71,6 +74,7 @@ As stated in [Usage](#usage) The component has three slots that will be switched
 
 - `.active` when the button is recording
 - `.needsInitiation` when the button has never been pressed
+- `.creating` when the record stopped and the result is being created
 
 ### Props
 

@@ -1,10 +1,16 @@
 <template>
   <button
     @click="recorderClick"
-    :class="[isRecording && 'active', !isInitiated && 'needsInitiation']"
+    :disabled="creatingResult"
+    :class="[
+      isRecording && 'active',
+      !isInitiated && 'needsInitiation',
+      creatingResult && 'creating'
+    ]"
   >
-    <slot v-if="isInitiated && !isRecording" />
+    <slot v-if="isInitiated && !isRecording && !creatingResult" />
     <slot v-if="!isInitiated" name="isInitiating" />
+    <slot v-if="creatingResult" name="isCreating" />
     <slot v-if="isInitiated && isRecording" name="isRecording"></slot>
   </button>
 </template>
@@ -29,9 +35,12 @@ export default {
     return {
       isInitiated: this.isAlreadyInitiated || false,
       isRecording: false,
+      creatingResult: false,
       recordingStartedAt: null,
       recordingEndedAt: null,
       recorder: null,
+      audioContext: null,
+      strema: null,
       recorderOptions: this.options || DEFAULT_OPTIONS
     };
   },
@@ -49,57 +58,42 @@ export default {
       throw error;
     },
     async initiatePlayer() {
-      let t = this;
-
-      const audioContext = new (window.AudioContext ||
+      this.audioContext = new (window.AudioContext ||
         window.webkitAudioContext)();
 
-      await navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((stream) => {
-          t.recorder = new Recorder(audioContext, t.recorderOptions);
-          t.recorder.init(stream);
-        })
-        .then(() => {
-          t.$emit("initiated");
-          t.isInitiated = true;
-        })
-        .catch((err) => {
-          t.causeError(err);
-        });
+      this.isInitiated = true;
+      this.$emit("initiated");
     },
     async recorderClick() {
-      let t = this;
-      if (!t.isInitiated) {
-        await this.initiatePlayer().catch((err) => {
-          t.causeError(err);
-        });
+      if (!this.isInitiated) {
+        await this.initiatePlayer();
       } else {
-        if (!t.isRecording) {
-          await t.recorder
-            .start()
-            .then(() => {
-              t.isRecording = true;
-              t.recordingStartedAt = performance.now();
-            })
-            .catch((err) => {
-              t.causeError(err);
-            });
+        if (!this.isRecording) {
+          this.stream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+          });
+          this.recorder = new Recorder(this.audioContext, this.recorderOptions);
+          this.recorder.init(this.stream);
+          await this.recorder.start();
+          this.recordingStartedAt = performance.now();
+          this.isRecording = true;
         } else {
-          t.recorder
-            .stop()
-            .then(({ blob, buffer }) => {
-              t.recordingEndedAt = performance.now();
-              t.$emit("result", {
-                blob: blob,
-                duration: t.recordingEndedAt - t.recordingStartedAt,
-                type: blob.type
-              });
-              t.isRecording = false;
-            })
-            .catch((err) => {
-              t.causeError(err);
-            });
+          this.recordingEndedAt = performance.now();
+          this.isRecording = false;
+          this.creatingResult = true;
+          const tracks = this.stream.getTracks();
+          tracks.forEach((track) => {
+            track.stop();
+          });
+
+          const { blob, buffer } = await this.recorder.stop();
+
+          this.$emit("result", {
+            blob: blob,
+            duration: this.recordingEndedAt - this.recordingStartedAt,
+            type: blob.type
+          });
+          this.creatingResult = false;
         }
       }
     }
