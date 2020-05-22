@@ -90,6 +90,8 @@ As stated in [Usage](#usage) The component has three slots that will be switched
 
   default: `false`
 
+- `disabled`: html button disabled
+
 ## Development
 
 ```

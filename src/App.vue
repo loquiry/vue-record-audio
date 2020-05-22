@@ -1,7 +1,7 @@
 <template>
   <button
     @click="recorderClick"
-    :disabled="creatingResult"
+    :disabled="creatingResult || disabled"
     :class="[
       isRecording && 'active',
       !isInitiated && 'needsInitiation',
@@ -22,6 +22,7 @@ const DEFAULT_OPTIONS = { sampleRate: 44100, bufferSize: 16384 };
 
 export default {
   props: {
+    disabled: Boolean,
     isAlreadyInitiated: {
       type: Boolean,
       default: false
