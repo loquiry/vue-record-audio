@@ -1,6 +1,6 @@
 {
   "name": "@loquiry/vue-record-audio",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "dist/vue-record-audio.umd.js",
   "unpkg": "dist/vue-record-audio.common.js",
   "scripts": {
